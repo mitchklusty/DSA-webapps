@@ -137,7 +137,7 @@ class LoginSystem{
                 const response = await this.getOAuthRedirect();
                 console.log(response);
                 if (response['Microsoft']){
-                    window.location.href = response['Microsoft'];
+                    //window.location.href = response['Microsoft'];
                 }    
             }
             if(dsa.gettoken()){
