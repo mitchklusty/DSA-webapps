@@ -116,11 +116,13 @@ class LoginSystem{
             
         }
         this.autologin = function(){
-            console.log("here");
+            console.log("autologin");
+            
             let cookie=document.cookie.split(';').filter(function(c){return c.trim().startsWith('girderToken=')})[0];
             if(cookie){
                 dsa.settoken(cookie.split('=')[1]);
             }
+            console.log(window.localStorage.getItem('dsa-auth') !== null);
             console.log(window.localStorage.getItem('dsa-auth'));
             if(window.localStorage.getItem('dsa-auth') !== null){
                 let json= JSON.parse(window.localStorage.getItem('dsa-auth'));
