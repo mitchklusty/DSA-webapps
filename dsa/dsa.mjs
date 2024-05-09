@@ -6,6 +6,7 @@ export class DigitalSlideArchiveAPI extends REST{
         let dsa = this;
         this.baseurl = baseurl;
         this.LoginSystem = new LoginSystem(this);
+        this.LoginSystem.autologin();
 
         dsa.LinkedSVS = function(folderId, name, metadata){
             const formData = new FormData()
@@ -115,6 +116,7 @@ class LoginSystem{
             
         }
         this.autologin = function(){
+            console.log("here");
             let cookie=document.cookie.split(';').filter(function(c){return c.trim().startsWith('girderToken=')})[0];
             if(cookie){
                 dsa.settoken(cookie.split('=')[1]);
