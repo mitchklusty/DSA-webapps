@@ -166,7 +166,7 @@ class LoginSystem{
 
         this.getOAuthRedirect = async function () {
             try {
-                const response = await fetch("https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://mitchklusty.github.io/DSA-webapps/gw/#dsa=https://dsa-uk.ai.uky.edu");
+                const response = await fetch("https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://dsahub.ai.uky.edu/annotations#dsa=https://dsa-uk.ai.uky.edu");
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
