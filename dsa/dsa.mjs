@@ -127,11 +127,16 @@ class LoginSystem{
                 dsa.settoken(json.authToken && json.authToken.token);
             } else {
                 console.log("redirecting")
-                const response =  fetch("https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://mitchklusty.github.io/DSA-webapps/gw/#dsa=https://dsa-uk.ai.uky.edu");
-                console.log(response);
-                url = response.json()['Microsoft']
-                console.log(url)
-                //window.location.href = url;
+                this.getOAuthRedirect.then(response => {
+                    console.log(response);
+                    url = response.json()['Microsoft'];
+                    console.log(url);
+                    //window.location.href = url;
+                }).catch(error => {
+                    console.error(error)
+                });
+                
+                
             }
             if(dsa.gettoken()){
                 dsa.get('user/authentication').then(_onlogin).catch(e=>{
@@ -143,6 +148,21 @@ class LoginSystem{
             // https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://dsa-uk.ai.uky.edu
 
             
+        }
+
+        this.getOAuthRedirect = async function () {
+            try {
+                const response = await fetch("https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://mitchklusty.github.io/DSA-webapps/gw/#dsa=https://dsa-uk.ai.uky.edu");
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.json();
+                console.log(data);
+                return data; 
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                throw error; 
+            }
         }
 
         loginScreen.find('#login-button').on('click',this.login);
