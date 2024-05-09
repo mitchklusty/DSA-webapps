@@ -124,13 +124,18 @@ class LoginSystem{
             if(window.localStorage.getItem('dsa-auth') !== null){
                 let json= JSON.parse(window.localStorage.getItem('dsa-auth'));
                 dsa.settoken(json.authToken && json.authToken.token);
+            } else {
+                window.location.href = "https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://mitchklusty.github.io/DSA-webapps/gw/#dsa=https://dsa-uk.ai.uky.edu"
             }
             if(dsa.gettoken()){
                 dsa.get('user/authentication').then(_onlogin).catch(e=>{
                     dsa.LoginSystem.getLoginScreen().trigger('login-failed');
                     dsa.LoginSystem.getLoginScreen().trigger('login-returned',[{success:false}]);
                 });
-            }   
+            }
+
+            // https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://dsa-uk.ai.uky.edu
+
             
         }
 
