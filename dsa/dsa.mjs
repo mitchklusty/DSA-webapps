@@ -122,14 +122,15 @@ class LoginSystem{
             if(cookie){
                 dsa.settoken(cookie.split('=')[1]);
             }
-            console.log(window.localStorage.getItem('dsa-auth') !== null);
-            console.log(window.localStorage.getItem('dsa-auth'));
             if(window.localStorage.getItem('dsa-auth') !== null){
                 let json= JSON.parse(window.localStorage.getItem('dsa-auth'));
                 dsa.settoken(json.authToken && json.authToken.token);
             } else {
                 console.log("redirecting")
-                window.location.href = "https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://mitchklusty.github.io/DSA-webapps/gw/#dsa=https://dsa-uk.ai.uky.edu";
+                const response =  fetch("https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://mitchklusty.github.io/DSA-webapps/gw/#dsa=https://dsa-uk.ai.uky.edu");
+                console.log(response);
+                url = response.json()['Microsoft']
+                window.location.href = url;
             }
             if(dsa.gettoken()){
                 dsa.get('user/authentication').then(_onlogin).catch(e=>{
@@ -179,6 +180,8 @@ class LoginSystem{
         </div>
         `
     }
+
+    
     
 };
 
