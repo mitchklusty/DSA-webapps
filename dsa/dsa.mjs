@@ -115,7 +115,7 @@ class LoginSystem{
             })
             
         }
-        this.autologin = function(){
+        this.autologin = async function(){
             console.log("autologin");
             
             let cookie=document.cookie.split(';').filter(function(c){return c.trim().startsWith('girderToken=')})[0];
@@ -127,14 +127,21 @@ class LoginSystem{
                 dsa.settoken(json.authToken && json.authToken.token);
             } else {
                 console.log("redirecting")
-                this.getOAuthRedirect().then(response => {
-                    console.log(response);
-                    url = response['Microsoft'];
-                    console.log(url);
-                    //window.location.href = url;
-                }).catch(error => {
-                    console.error(error)
-                });
+
+                // this.getOAuthRedirect.then(response => {
+                //     console.log(response);
+                //     url = response['Microsoft'];
+                //     console.log(url);
+                //     //window.location.href = url;
+                // }).catch(error => {
+                //     console.error(error)
+                // });
+
+                const response = await this.getOAuthRedirect();
+                console.log(response);
+                url = response['Microsoft'];
+                console.log(url);
+                //window.location.href = url;
                 
                 
             }
