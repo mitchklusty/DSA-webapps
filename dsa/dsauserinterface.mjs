@@ -400,13 +400,13 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
             })
             this.dialog.find('.login').html(loginScreen);
             this.dialog.find('.dsa-contents').html('Loading...')
+            console.log("Login here");
             this.API.LoginSystem.autologin();
             this._getAnnotatedImages();
             this._getCollections();
 
             this.raiseEvent('dsa-connected');
         })
-        this.API.LoginSystem.autologin;
         
     }
 
