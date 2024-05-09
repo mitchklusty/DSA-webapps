@@ -125,7 +125,9 @@ class LoginSystem{
             if (girderToken) {
                 dsa.settoken(girderToken);
                 params.delete('girderToken');
-                const newUrl = window.location.origin + window.location.pathname + '?' + params.toString();
+                var newUrl = window.location.origin + window.location.pathname 
+                if (params)
+                    newUrl += '?' + params.toString();
                 console.log(newUrl);
                 console.log(document.title);
                 window.history.replaceState({}, document.title, newUrl);
@@ -139,7 +141,7 @@ class LoginSystem{
             if(window.localStorage.getItem('dsa-auth') !== null){
                 let json= JSON.parse(window.localStorage.getItem('dsa-auth'));
                 dsa.settoken(json.authToken && json.authToken.token);
-            } else {
+            } else if (!dsa.gettoken()) {
                 const response = await this.getOAuthRedirect();
                 if (response['Microsoft']){
                     window.location.href = response['Microsoft'];
@@ -164,7 +166,6 @@ class LoginSystem{
                     throw new Error('Failed to fetch data');
                 }
                 const data = await response.json();
-                console.log(data);
                 return data; 
             } catch (error) {
                 console.error('Error fetching data:', error);
