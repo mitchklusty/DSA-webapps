@@ -158,6 +158,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
             this.dialog.data('baseurl',baseurl);
             this.raiseEvent('set-dsa-instance',{url: baseurl});
         }
+
         return true;
     }
     
@@ -405,6 +406,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
 
             this.raiseEvent('dsa-connected');
         })
+        this.API.LoginSystem.autologin;
         
     }
 
