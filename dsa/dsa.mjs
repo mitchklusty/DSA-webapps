@@ -115,9 +115,7 @@ class LoginSystem{
             })
             
         }
-        this.autologin = async function(){
-            console.log("autologin");
-            
+        this.autologin = async function(){            
             let cookie=document.cookie.split(';').filter(function(c){return c.trim().startsWith('girderToken=')})[0];
             if(cookie){
                 dsa.settoken(cookie.split('=')[1]);
@@ -126,24 +124,12 @@ class LoginSystem{
                 let json= JSON.parse(window.localStorage.getItem('dsa-auth'));
                 dsa.settoken(json.authToken && json.authToken.token);
             } else {
-                console.log("redirecting")
-
-                // this.getOAuthRedirect.then(response => {
-                //     console.log(response);
-                //     url = response['Microsoft'];
-                //     console.log(url);
-                //     //window.location.href = url;
-                // }).catch(error => {
-                //     console.error(error)
-                // });
-
                 const response = await this.getOAuthRedirect();
                 console.log(response);
-                url = response['Microsoft'];
-                console.log(url);
-                //window.location.href = url;
-                
-                
+                if (response['Microsoft']){
+                    url = response['Microsoft'];
+                    window.location.href = url;
+                }    
             }
             if(dsa.gettoken()){
                 dsa.get('user/authentication').then(_onlogin).catch(e=>{
