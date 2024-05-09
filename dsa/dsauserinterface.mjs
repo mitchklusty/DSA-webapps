@@ -1,5 +1,5 @@
-import { DigitalSlideArchiveAPI } from "./dsa.mjs";
-import { DSAAdapter } from "./adapter.mjs";
+import { DigitalSlideArchiveAPI } from "/DSA-webapps/dsa/dsa.mjs";
+import { DSAAdapter } from "/DSA-webapps/dsa/adapter.mjs";
 
 export class DSAUserInterface extends OpenSeadragon.EventSource{
     constructor(viewer, options){

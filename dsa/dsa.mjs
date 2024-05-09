@@ -1,4 +1,4 @@
-import { REST } from './restapi.mjs';
+import { REST } from '/DSA-webapps/dsa/restapi.mjs';
 
 export class DigitalSlideArchiveAPI extends REST{
     constructor(baseurl='',apiurl='/api/v1'){

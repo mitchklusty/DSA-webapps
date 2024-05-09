@@ -1,7 +1,7 @@
 
 import { RotationControlOverlay } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.3/src/js/rotationcontrol.mjs';
 import { AnnotationToolkit } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.3/src/js/annotationtoolkit.mjs';
-import { DSAUserInterface } from '../dsa/dsauserinterface.mjs';
+import { DSAUserInterface } from '/DSA-webapps/dsa/dsauserinterface.mjs';
 
 // Global DSA linking variables
 const ANNOTATION_NAME = 'Gray White Segmentation';
@@ -22,7 +22,7 @@ const annotations = {
     'White Matter': null,
     'Leptomeninges': null
 }
-
+console.log("here")
 // don't navigate away accidentally
 window.addEventListener('beforeunload',function(){
     return 'Are you sure you want to leave?';
@@ -45,6 +45,7 @@ let viewer = window.viewer = OpenSeadragon({
 
 // DSA setup
 const dsaUI = new DSAUserInterface(viewer);
+console.log(dsaUI)
 dsaUI.header.appendTo('.dsa-ui-container');
 
 // Add rotation control
