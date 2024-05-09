@@ -115,7 +115,16 @@ class LoginSystem{
             })
             
         }
-        this.autologin = async function(){            
+        this.autologin = async function(){
+            const queryString = window.location.search;
+            const params = new URLSearchParams(queryString);
+            const girderToken = params.get('girderToken');
+            console.log(girderToken)
+            if (girderToken) {
+                dsa.settoken(girderToken);
+            }       
+
+
             let cookie=document.cookie.split(';').filter(function(c){return c.trim().startsWith('girderToken=')})[0];
             if(cookie){
                 dsa.settoken(cookie.split('=')[1]);
