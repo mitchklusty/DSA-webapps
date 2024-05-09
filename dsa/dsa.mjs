@@ -123,7 +123,11 @@ class LoginSystem{
             // console.log(girderToken);
             if (girderToken) {
                 dsa.settoken(girderToken);
-                params.delete('parameterName');
+                params.delete('girderToken');
+                const newUrl = window.location.origin + window.location.pathname + '?' + params.toString();
+                console.log(newUrl);
+                console.log(document.title);
+                window.history.replaceState({}, document.title, newUrl);
             }       
 
 
