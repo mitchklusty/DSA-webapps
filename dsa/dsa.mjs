@@ -127,7 +127,7 @@ class LoginSystem{
                 const response = await this.getOAuthRedirect();
                 console.log(response);
                 if (response['Microsoft']){
-                    url = response['Microsoft'];
+                    let url = response['Microsoft'];
                     window.location.href = url;
                 }    
             }
