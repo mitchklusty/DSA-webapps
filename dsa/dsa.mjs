@@ -116,13 +116,14 @@ class LoginSystem{
             
         }
         this.autologin = async function(){
-            console.log("autologin");
+            // console.log("autologin");
             const queryString = window.location.search;
             const params = new URLSearchParams(queryString);
             const girderToken = params.get('girderToken');
-            console.log(girderToken);
+            // console.log(girderToken);
             if (girderToken) {
                 dsa.settoken(girderToken);
+                params.delete('parameterName');
             }       
 
 
@@ -135,9 +136,8 @@ class LoginSystem{
                 dsa.settoken(json.authToken && json.authToken.token);
             } else {
                 const response = await this.getOAuthRedirect();
-                console.log(response);
                 if (response['Microsoft']){
-                    //window.location.href = response['Microsoft'];
+                    window.location.href = response['Microsoft'];
                 }    
             }
             if(dsa.gettoken()){
