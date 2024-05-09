@@ -5,7 +5,7 @@ export class DigitalSlideArchiveAPI extends REST{
         super(baseurl+apiurl);
         let dsa = this;
         this.baseurl = baseurl;
-        this.LoginSystem = new LoginSystem(this);
+        this.LoginSystem = new LoginSystem(this, baseurl);
         this.LoginSystem.autologin;
 
         dsa.LinkedSVS = function(folderId, name, metadata){
@@ -95,8 +95,9 @@ export class DigitalSlideArchiveAPI extends REST{
 }
 
 class LoginSystem{
-    constructor(dsa){
+    constructor(dsa, baseurl=""){
         var loginScreen = $(this._loginHTML());
+        this.baseurl = baseurl; 
         this.getLoginScreen = function(){return loginScreen;}
         this.login = function(){
             var str = btoa($('#username').val() + ':' + $('#password').val());
@@ -126,8 +127,12 @@ class LoginSystem{
                 dsa.settoken(girderToken);
                 params.delete('girderToken');
                 var newUrl = window.location.origin + window.location.pathname 
-                if (params)
+                if (params){
                     newUrl += '?' + params.toString();
+                }
+                if (this.baseurl){
+                    newUrl += "#dsa="+baseurl;
+                }
                 console.log(newUrl);
                 console.log(document.title);
                 window.history.replaceState({}, document.title, newUrl);
