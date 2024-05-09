@@ -127,9 +127,9 @@ class LoginSystem{
                 dsa.settoken(json.authToken && json.authToken.token);
             } else {
                 console.log("redirecting")
-                this.getOAuthRedirect.then(response => {
+                this.getOAuthRedirect().then(response => {
                     console.log(response);
-                    url = response.json()['Microsoft'];
+                    url = response['Microsoft'];
                     console.log(url);
                     //window.location.href = url;
                 }).catch(error => {
