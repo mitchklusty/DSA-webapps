@@ -120,7 +120,7 @@ class LoginSystem{
             const queryString = window.location.search;
             const params = new URLSearchParams(queryString);
             const girderToken = params.get('girderToken');
-            // console.log(girderToken);
+            console.log(girderToken);
             if (girderToken) {
                 dsa.settoken(girderToken);
                 params.delete('girderToken');
