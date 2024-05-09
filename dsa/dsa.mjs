@@ -130,7 +130,8 @@ class LoginSystem{
                 const response =  fetch("https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://mitchklusty.github.io/DSA-webapps/gw/#dsa=https://dsa-uk.ai.uky.edu");
                 console.log(response);
                 url = response.json()['Microsoft']
-                window.location.href = url;
+                console.log(url)
+                //window.location.href = url;
             }
             if(dsa.gettoken()){
                 dsa.get('user/authentication').then(_onlogin).catch(e=>{
