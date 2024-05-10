@@ -388,7 +388,6 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
             throw('Either this URL is not a DSA, or the DSA cannot be reached (check CORS settings).');
         }).then(d=>{
             this.dialog.dialog('option', 'title', 'DSA: '+baseurl); 
-            this.API.LoginSystem.autologin();
             let loginScreen=this.API.LoginSystem.getLoginScreen();
             loginScreen.on('logged-in',()=>{
                 this._getAnnotatedImages();
@@ -400,7 +399,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
             })
             this.dialog.find('.login').html(loginScreen);
             this.dialog.find('.dsa-contents').html('Loading...')
-            console.log("Login here");
+            
             this.API.LoginSystem.autologin();
             this._getAnnotatedImages();
             this._getCollections();

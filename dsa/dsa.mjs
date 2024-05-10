@@ -138,6 +138,8 @@ class LoginSystem{
                 console.log(newUrl);
                 console.log(document.title);
                 window.history.replaceState({}, document.title, newUrl);
+                this.autologin;
+                return;
             }       
 
 
