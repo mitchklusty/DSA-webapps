@@ -1,5 +1,6 @@
 import { DigitalSlideArchiveAPI } from "/DSA-webapps/dsa/dsa.mjs";
 import { DSAAdapter } from "/DSA-webapps/dsa/adapter.mjs";
+import { DSA_INSTANCE_URL } from '/DSA-webapps/config.mjs';
 
 export class DSAUserInterface extends OpenSeadragon.EventSource{
     constructor(viewer, options){
@@ -41,7 +42,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
             if(ev.key=='Enter') this.dsaGoButton.trigger('click');
         });
 
-        this.connectToDSA(baseurl);
+        this.connectToDSA(DSA_INSTANCE_URL);
         // on pressing Go, open the dialog, initializing the DSA connection if needed
         this.dsaGoButton.on('click',()=>{
             let baseurl = this.dsaLinkInput.val();
