@@ -29,7 +29,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
         this.adapter = new DSAAdapter();
 
         this.annotationEditorGUI.hide();
-
+        
         // initialize dialog instance
         this.dialog.dialog({
             autoOpen:false,
@@ -41,6 +41,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
             if(ev.key=='Enter') this.dsaGoButton.trigger('click');
         });
 
+        this.connectToDSA(baseurl);
         // on pressing Go, open the dialog, initializing the DSA connection if needed
         this.dsaGoButton.on('click',()=>{
             let baseurl = this.dsaLinkInput.val();
