@@ -1,4 +1,5 @@
 import { REST } from '/DSA-webapps/dsa/restapi.mjs';
+import '/DSA-webapps/config.mjs';
 
 export class DigitalSlideArchiveAPI extends REST{
     constructor(baseurl='',apiurl='/api/v1'){
@@ -157,16 +158,12 @@ class LoginSystem{
                     dsa.LoginSystem.getLoginScreen().trigger('login-failed');
                     dsa.LoginSystem.getLoginScreen().trigger('login-returned',[{success:false}]);
                 });
-            }
-
-            // https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://dsa-uk.ai.uky.edu
-
-            
+            }            
         }
 
         this.getOAuthRedirect = async function () {
             try {
-                const response = await fetch("https://dsa-uk.ai.uky.edu/api/v1/oauth/provider?redirect=https://dsahub.ai.uky.edu/annotations#dsa=https://dsa-uk.ai.uky.edu");
+                const response = await fetch(`${DSA_INSTANCE_URL}/api/v1/oauth/provider?redirect=https://dsahub.ai.uky.edu/annotations#dsa=${DSA_INSTANCE_URL}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
