@@ -3,7 +3,7 @@ import { DSA_INSTANCE_URL } from '/DSA-webapps/config.mjs';
 
 export class DigitalSlideArchiveAPI extends REST{
     constructor(baseurl='',apiurl='/api/v1'){
-        console.log()
+        console.log("DSA REST")
         super(baseurl+apiurl);
         let dsa = this;
         this.baseurl = baseurl;

@@ -45,7 +45,7 @@ let viewer = window.viewer = OpenSeadragon({
 
 // DSA setup
 const dsaUI = new DSAUserInterface(viewer);
-console.log(dsaUI)
+console.log(dsaUI.API.LoginSystem);
 dsaUI.header.appendTo('.dsa-ui-container');
 
 // Add rotation control
