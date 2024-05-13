@@ -46,6 +46,7 @@ $('#file-picker').on('change',function(){
     v1.goToPage(0);
 })
 
+console.log("Connect to dsa")
 dsaUI.connectToDSA(DSA_INSTANCE_URL);
 
 
