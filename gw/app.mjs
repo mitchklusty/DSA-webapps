@@ -2,6 +2,7 @@
 import { RotationControlOverlay } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.3/src/js/rotationcontrol.mjs';
 import { AnnotationToolkit } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.3/src/js/annotationtoolkit.mjs';
 import { DSAUserInterface } from '/DSA-webapps/dsa/dsauserinterface.mjs';
+import { DSA_INSTANCE_URL } from '/DSA-webapps/config.mjs';
 
 // Global DSA linking variables
 const ANNOTATION_NAME = 'Gray White Segmentation';

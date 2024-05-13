@@ -2,7 +2,6 @@
 import { AnnotationToolkit } from '../../src/js/annotationtoolkit.mjs';
 import { DSAUserInterface } from './dsauserinterface.mjs';
 import { RotationControlOverlay } from '../../src/js/rotationcontrol.mjs';
-import { DSA_INSTANCE_URL } from '/DSA-webapps/config.mjs';
 
 
 // let styledef;
