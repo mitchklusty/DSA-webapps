@@ -2,6 +2,7 @@
 import { AnnotationToolkit } from '../../src/js/annotationtoolkit.mjs';
 import { DSAUserInterface } from './dsauserinterface.mjs';
 import { RotationControlOverlay } from '../../src/js/rotationcontrol.mjs';
+import { DSA_INSTANCE_URL } from '/DSA-webapps/config.mjs';
 
 
 // let styledef;
@@ -44,6 +45,8 @@ $('#file-picker').on('change',function(){
     v1.open(tileSources);
     v1.goToPage(0);
 })
+
+dsaUI.connectToDSA(DSA_INSTANCE_URL);
 
 
 // Viewer creation and annotation setup
