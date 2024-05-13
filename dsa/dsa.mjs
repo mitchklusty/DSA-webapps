@@ -124,7 +124,6 @@ class LoginSystem{
             const params = new URLSearchParams(queryString);
             const girderToken = params.get('girderToken');
 
-            console.log(girderToken);
             if (girderToken) {
                 dsa.settoken(girderToken);
                 params.delete('girderToken');
@@ -135,8 +134,6 @@ class LoginSystem{
                 if (this.baseurl){
                     newUrl += "#dsa="+baseurl;
                 }
-                console.log(newUrl);
-                console.log(document.title);
                 window.history.replaceState({}, document.title, newUrl);
                 window.location.href = newUrl;
             }       
@@ -160,7 +157,9 @@ class LoginSystem{
                     dsa.LoginSystem.getLoginScreen().trigger('login-failed');
                     dsa.LoginSystem.getLoginScreen().trigger('login-returned',[{success:false}]);
                 });
-            }            
+            }
+            
+            
         }
 
         this.getOAuthRedirect = async function () {

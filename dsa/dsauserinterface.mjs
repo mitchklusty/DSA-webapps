@@ -42,7 +42,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
             if(ev.key=='Enter') this.dsaGoButton.trigger('click');
         });
 
-        this.connectToDSA(DSA_INSTANCE_URL);
+        
         // on pressing Go, open the dialog, initializing the DSA connection if needed
         this.dsaGoButton.on('click',()=>{
             let baseurl = this.dsaLinkInput.val();
@@ -85,11 +85,15 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
 
 
         // setup hash functionality, if enabled
+        console.log("Should connect here")
+        console.log(this.options.hash)
         if(this.options.hash){
             // initialized based on hash
             this.hashInfo.read();
+            console.log(this.hashInfo);
             if(this.hashInfo.dsa){
                 let success = this.connectToDSA(this.hashInfo.dsa);
+                console.log(success)
                 if(success && this.hashInfo.image){
                     this.openItem(this.hashInfo.image).catch(e => {
                         this.addOnceHandler('login-returned', event=>{
