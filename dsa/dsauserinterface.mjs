@@ -96,6 +96,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
                 console.log(success)
                 if(success && this.hashInfo.image){
                     this.openItem(this.hashInfo.image).catch(e => {
+                        console.log(e);
                         console.log("Adding the handler")
                         this.addHandler('login-returned', event=>{
                             console.log("Added handler")
