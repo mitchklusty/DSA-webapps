@@ -47,14 +47,34 @@ let viewer = window.viewer = OpenSeadragon({
     showNavigator:true,
 });
 
+const queryString = window.location.search;
+const params = new URLSearchParams(queryString);
+const girderToken = params.get('girderToken');
+console.log(girderToken);
+if (girderToken) {
+    dsa.settoken(girderToken);
+    params.delete('girderToken');
+    var newUrl = window.location.origin + window.location.pathname 
+    if (params){
+        newUrl += '?' + params.toString();
+    }
+    if (DSA_INSTANCE_URL){
+        newUrl += "#dsa="+DSA_INSTANCE_URL;
+    }
+    console.log(newUrl);
+    window.history.replaceState({}, document.title, newUrl);
+    window.location.href = newUrl;
+} 
+
+
 // DSA setup
 const dsaUI = new DSAUserInterface(viewer);
 window.dsa = dsaUI;
 // console.log(dsaUI.API.LoginSystem);
 dsaUI.header.appendTo('.dsa-ui-container');
 
-console.log("Connect to dsa")
-dsaUI.connectToDSA(DSA_INSTANCE_URL);
+// console.log("Connect to dsa")
+// dsaUI.connectToDSA(DSA_INSTANCE_URL);
 
 // Add rotation control
 const rotationControl = new RotationControlOverlay(viewer);

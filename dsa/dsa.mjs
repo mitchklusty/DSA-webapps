@@ -121,23 +121,6 @@ class LoginSystem{
         }
         this.autologin = async function(){
             console.log("autologin");
-            const queryString = window.location.search;
-            const params = new URLSearchParams(queryString);
-            const girderToken = params.get('girderToken');
-
-            if (girderToken) {
-                dsa.settoken(girderToken);
-                params.delete('girderToken');
-                var newUrl = window.location.origin + window.location.pathname 
-                if (params){
-                    newUrl += '?' + params.toString();
-                }
-                if (this.baseurl){
-                    newUrl += "#dsa="+baseurl;
-                }
-                window.history.replaceState({}, document.title, newUrl);
-                window.location.href = newUrl;
-            }       
 
 
             let cookie=document.cookie.split(';').filter(function(c){return c.trim().startsWith('girderToken=')})[0];
