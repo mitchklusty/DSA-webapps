@@ -52,7 +52,6 @@ const params = new URLSearchParams(queryString);
 const girderToken = params.get('girderToken');
 console.log(girderToken);
 if (girderToken) {
-    dsa.settoken(girderToken);
     params.delete('girderToken');
     var newUrl = window.location.origin + window.location.pathname 
     if (params){
@@ -69,6 +68,7 @@ if (girderToken) {
 
 // DSA setup
 const dsaUI = new DSAUserInterface(viewer);
+dsaUI.API.settoken(girderToken);
 window.dsa = dsaUI;
 // console.log(dsaUI.API.LoginSystem);
 dsaUI.header.appendTo('.dsa-ui-container');
