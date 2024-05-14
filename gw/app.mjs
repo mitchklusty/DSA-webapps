@@ -1,14 +1,8 @@
-
-<<<<<<< HEAD
-import { RotationControlOverlay } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.3/src/js/rotationcontrol.mjs';
-import { AnnotationToolkit } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.3/src/js/annotationtoolkit.mjs';
-import { DSAUserInterface } from '/DSA-webapps/dsa/dsauserinterface.mjs';
-import { DSA_INSTANCE_URL } from '/DSA-webapps/config.mjs';
-=======
 import { RotationControlOverlay } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.5/src/js/rotationcontrol.mjs';
 import { AnnotationToolkit } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.5/src/js/annotationtoolkit.mjs';
-import { DSAUserInterface } from '../dsa/dsauserinterface.mjs';
->>>>>>> upstream/main
+import { DSAUserInterface } from '/DSA-webapps/dsa/dsauserinterface.mjs';
+import { DSA_INSTANCE_URL } from '/DSA-webapps/config.mjs';
+
 
 // Global DSA linking variables
 const ANNOTATION_NAME = 'Gray White Segmentation';
@@ -55,6 +49,7 @@ let viewer = window.viewer = OpenSeadragon({
 
 // DSA setup
 const dsaUI = new DSAUserInterface(viewer);
+window.dsa = dsaUI;
 // console.log(dsaUI.API.LoginSystem);
 dsaUI.header.appendTo('.dsa-ui-container');
 
