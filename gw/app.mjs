@@ -47,6 +47,8 @@ let viewer = window.viewer = OpenSeadragon({
     showNavigator:true,
 });
 
+
+
 const queryString = window.location.search;
 const params = new URLSearchParams(queryString);
 const girderToken = params.get('girderToken');
@@ -58,7 +60,8 @@ if (girderToken) {
         newUrl += '?' + params.toString();
     }
     if (DSA_INSTANCE_URL){
-        newUrl += "#dsa="+DSA_INSTANCE_URL;
+        newUrl += "#dsa="+DSA_INSTANCE_URL + "&image=66182730ec0155f5030f394e";
+           
     }
     console.log(newUrl);
     window.history.replaceState({}, document.title, newUrl);
@@ -68,8 +71,10 @@ if (girderToken) {
 
 // DSA setup
 const dsaUI = new DSAUserInterface(viewer);
-dsaUI.API.settoken(girderToken);
+
 window.dsa = dsaUI;
+dsaUI.API.settoken(girderToken);
+
 // console.log(dsaUI.API.LoginSystem);
 dsaUI.header.appendTo('.dsa-ui-container');
 
