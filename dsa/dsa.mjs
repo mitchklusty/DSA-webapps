@@ -8,6 +8,7 @@ export class DigitalSlideArchiveAPI extends REST{
         let dsa = this;
         this.baseurl = baseurl;
         this.LoginSystem = new LoginSystem(this, baseurl);
+        console.log("Created API");
         // this.LoginSystem.autologin;
 
         dsa.LinkedSVS = function(folderId, name, metadata){
