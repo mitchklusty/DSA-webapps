@@ -48,6 +48,19 @@ let viewer = window.viewer = OpenSeadragon({
 });
 
 
+var hash = window.location.hash.substr(1);
+
+var hashParams = hash.split('&').reduce(function (res, item) {
+    var parts = item.split('=');
+    res[parts[0]] = parts[1];
+    return res;
+}, {});
+
+if ("image" in hashParams){
+    localStorage.setItem('image', hashParams["image"]);
+}
+
+
 
 const queryString = window.location.search;
 const params = new URLSearchParams(queryString);
@@ -60,8 +73,11 @@ if (girderToken) {
         newUrl += '?' + params.toString();
     }
     if (DSA_INSTANCE_URL){
-        newUrl += "#dsa="+DSA_INSTANCE_URL + "&image=66182730ec0155f5030f394e";
-           
+        newUrl += "#dsa="+DSA_INSTANCE_URL;
+        var imageQueryParam = localStorage.getItem('image') || false;
+        if (imageQueryParam){
+            newUrl += `&image=${imageQueryParam}`;
+        }
     }
     console.log(newUrl);
     window.history.replaceState({}, document.title, newUrl);
