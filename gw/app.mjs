@@ -53,8 +53,8 @@ window.dsa = dsaUI;
 // console.log(dsaUI.API.LoginSystem);
 dsaUI.header.appendTo('.dsa-ui-container');
 
-// console.log("Connect to dsa")
-// dsaUI.connectToDSA(DSA_INSTANCE_URL);
+console.log("Connect to dsa")
+dsaUI.connectToDSA(DSA_INSTANCE_URL);
 
 // Add rotation control
 const rotationControl = new RotationControlOverlay(viewer);
