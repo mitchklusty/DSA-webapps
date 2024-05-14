@@ -183,7 +183,7 @@ class LoginSystem{
         });
 
         function _onlogin(d){
-            console.log(d);
+            console.log("OnLogin called: ", d);
             dsa.settoken(d.authToken.token);
             loginScreen.addClass('logged-in');
             loginScreen.find('#firstname').text(d.user.firstName);
