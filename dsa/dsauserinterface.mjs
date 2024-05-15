@@ -90,16 +90,11 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
         if(this.options.hash){
             // initialized based on hash
             this.hashInfo.read();
-            console.log(this.hashInfo);
             if(this.hashInfo.dsa){
                 let success = this.connectToDSA(this.hashInfo.dsa);
-                console.log(success)
                 if(success && this.hashInfo.image){
                     this.openItem(this.hashInfo.image).catch(e => {
-                        console.log(e);
-                        console.log("Adding the handler")
                         this.addHandler('login-returned', event=>{
-                            console.log("Added handler")
                             if(event.success){
                                 this.openItem(this.hashInfo.image);
                             } else {

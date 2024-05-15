@@ -65,7 +65,6 @@ if ("image" in hashParams){
 const queryString = window.location.search;
 const params = new URLSearchParams(queryString);
 const girderToken = params.get('girderToken');
-console.log(girderToken);
 if (girderToken) {
     params.delete('girderToken');
     var newUrl = window.location.origin + window.location.pathname 
@@ -89,11 +88,9 @@ if (girderToken) {
 const dsaUI = new DSAUserInterface(viewer);
 
 // window.dsa = dsaUI;
-console.log("TOKEN: ", dsaUI.API.gettoken());
 if (girderToken && dsaUI !== null){
     dsaUI.API.settoken(girderToken);
 }
-console.log("TOKEN AFTER: ", dsaUI.API.gettoken());
 
 
 // console.log(dsaUI.API.LoginSystem);
