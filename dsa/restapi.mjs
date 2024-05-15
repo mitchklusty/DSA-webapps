@@ -34,7 +34,6 @@ export class REST {
             //console.log('Cookie?',headers.cookie.match(/girderToken=([^\s;]+)/))
             //if(_this.token && !params.token) params.token = _this.token
             console.log("TOKEN TO PUSH:", _this.token);
-            console.log("TOKEN IS: ", _this.gettoken)
             if (_this.basicauth && !params.token && !_this.token) {
                 headers['Authorization'] = 'Basic ' + _this.basicauth;
             }

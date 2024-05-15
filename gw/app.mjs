@@ -69,7 +69,7 @@ console.log(girderToken);
 if (girderToken) {
     params.delete('girderToken');
     var newUrl = window.location.origin + window.location.pathname 
-    if (params){
+    if (params.length > 0){
         newUrl += '?' + params.toString();
     }
     if (DSA_INSTANCE_URL){
