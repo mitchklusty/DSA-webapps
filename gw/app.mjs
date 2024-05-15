@@ -79,7 +79,7 @@ if (girderToken) {
             newUrl += `&image=${imageQueryParam}`;
         }
     }
-    console.log(newUrl);
+    console.log("NewURL: ", newUrl);
     window.history.replaceState({}, document.title, newUrl);
     window.location.href = newUrl;
 } 
@@ -93,6 +93,7 @@ console.log("TOKEN: ", dsaUI.API.gettoken());
 if (girderToken && dsaUI !== null){
     dsaUI.API.settoken(girderToken);
 }
+console.log("TOKEN AFTER: ", dsaUI.API.gettoken());
 
 
 // console.log(dsaUI.API.LoginSystem);
