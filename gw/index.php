@@ -23,7 +23,7 @@ $config = include CONFIG_FILE;
     <div class="content">
         <div id="header">
             <div class="dsa-ui-container"></div>
-            <div>
+            <div id="button-set">
                 <span id="annotation-controls">
                     <button id="start-gray">Start gray matter</button>
                     <button id="finish-gray" class="finish-button" disabled>Finshed</button>
