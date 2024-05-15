@@ -33,6 +33,8 @@ export class REST {
             //console.log('REST API called, token=',_this.token)
             //console.log('Cookie?',headers.cookie.match(/girderToken=([^\s;]+)/))
             //if(_this.token && !params.token) params.token = _this.token
+            console.log("TOKEN TO PUSH:", _this.token);
+            console.log("TOKEN IS: ", this.gettoken)
             if (_this.basicauth && !params.token && !_this.token) {
                 headers['Authorization'] = 'Basic ' + _this.basicauth;
             }
@@ -105,6 +107,7 @@ export class REST {
             }).catch(e => console.log('Failed to set api key', e));
         };
         api.settoken = function (token) {
+            console.log("SETTING TOKEN: ", token)
             _this.token = token;
         };
         api.gettoken = function () {
