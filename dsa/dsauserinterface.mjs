@@ -85,8 +85,8 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
 
 
         // setup hash functionality, if enabled
-        console.log("Should connect here")
-        console.log(this.options.hash)
+        // console.log("Should connect here")
+        // console.log(this.options.hash)
         if(this.options.hash){
             // initialized based on hash
             this.hashInfo.read();

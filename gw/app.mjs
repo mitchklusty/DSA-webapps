@@ -88,8 +88,12 @@ if (girderToken) {
 // DSA setup
 const dsaUI = new DSAUserInterface(viewer);
 
-window.dsa = dsaUI;
-dsaUI.API.settoken(girderToken);
+// window.dsa = dsaUI;
+
+if (girderToken){
+    dsaUI.API.settoken(girderToken);
+}
+
 
 // console.log(dsaUI.API.LoginSystem);
 dsaUI.header.appendTo('.dsa-ui-container');
