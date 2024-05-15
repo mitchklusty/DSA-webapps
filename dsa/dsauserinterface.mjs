@@ -239,7 +239,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
             promise = this.API.put(`annotation/${annotationID}`,{params:{itemId:itemID},data:data});
         } else {
             //use POST to create a new annotation
-            promise = this.API.put('annotation',{params:{itemId:itemID},data:data});
+            promise = this.API.post('annotation',{params:{itemId:itemID},data:data});
         }
 
         if(saveGeoJSONFile){
