@@ -89,8 +89,8 @@ if (girderToken) {
 const dsaUI = new DSAUserInterface(viewer);
 
 // window.dsa = dsaUI;
-
-if (girderToken){
+console.log("TOKEN: ", dsaUI.API.gettoken());
+if (girderToken && dsaUI !== null){
     dsaUI.API.settoken(girderToken);
 }
 
