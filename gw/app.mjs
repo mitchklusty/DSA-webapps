@@ -1,8 +1,9 @@
-import { RotationControlOverlay } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.5/src/js/rotationcontrol.mjs';
-import { AnnotationToolkit } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.5/src/js/annotationtoolkit.mjs';
+
+
+import { RotationControlOverlay } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.6/src/js/rotationcontrol.mjs';
+import { AnnotationToolkit } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.6/src/js/annotationtoolkit.mjs';
 import { DSAUserInterface } from '/DSA-webapps/dsa/dsauserinterface.mjs';
 import { DSA_INSTANCE_URL } from '/DSA-webapps/config.mjs';
-
 
 // Global DSA linking variables
 const ANNOTATION_NAME = 'Gray White Segmentation';
@@ -85,7 +86,7 @@ if (girderToken) {
 
 
 // DSA setup
-const dsaUI = new DSAUserInterface(viewer);
+const dsaUI = new DSAUserInterface(viewer,{showHeader:'hash'});
 
 // window.dsa = dsaUI;
 if (girderToken && dsaUI !== null){
@@ -232,6 +233,18 @@ finishLeptomeninges.addEventListener('click',function(){
 // Set up the "Finish Exclude" button
 finishExclude.addEventListener('click',function(){
     this.classList.add('complete');
+    // make Exclude a polygon type if the user hasn't drawn anything
+    if(annotations['Exclude']){
+        const geometry = {
+            type: 'Polygon',
+            coordinates: [[[-1, -1], [-1, 0], [0, 0], [0, -1]]],
+        }
+        const newItem = tk.paperScope.Item.fromGeoJSON(geometry);
+        annotations['Exclude'].replaceWith(newItem);
+        annotations['Exclude'] = newItem;
+    }
+    
+
     makeNonOverlapping('Exclude', true);
     testComplete();
 });
@@ -302,8 +315,8 @@ function setupFeatureCollection(existing){
     }
     
     // reset the button states
-    document.querySelectorAll('.annotation-controls button.complete').forEach(b=>b.classList.remove('complete'));
-    document.querySelectorAll('.annotation-controls button.active').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('#annotation-controls button.complete').forEach(b=>b.classList.remove('complete'));
+    document.querySelectorAll('#annotation-controls button.active').forEach(b=>b.classList.remove('active'));
 
 }
 
