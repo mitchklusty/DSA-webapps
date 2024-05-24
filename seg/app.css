@@ -33,81 +33,39 @@ body{
 .viewer{
     height:100%;
 }
-
+#button-set{
+    white-space: nowrap;
+}
 button.active {
     background-color: lightblue;
 }
+button.complete {
+    background-color:lightgreen;
+}
 
-.item-navigation-text{
+.annotation-ui-drawing-toolbar{
+    width:25em;
+}
+
+
+/* #gui-container{
+    overflow:hidden;
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+}
+#paper-gui{
+    overflow:hidden;
+}
+#reviewer-controls{
     display:none;
 }
-
-.selectable-action:not(.visible){
-    display:none;
+.annotation-ui-mainwindow{
+    height:100%;
+    width:20em;
 }
-.header-group{
-    display:inline-block;
-}
-.header-group:not(:first-child){
-    border-left:thin black solid;
-    margin-left:0.5em;
-    padding-left:0.5em;
-}
-.annotation-actions{
-    display:inline-grid;
-    grid-template-columns:auto 1fr;
-}
-.annotation-actions.no-roi div.requires-roi{
-    display:none;
-}
-.control-group{
-    margin:0 0.5em;
-    padding:0 0.5em;
-    border-left:thin gray solid;
-    border-right:thin gray solid;
-}
-.item-list{
-    padding:0 0.5em;
-}
-.bbox-dropdown{
-    margin-right:0.5em;
-}
-.done-span{
-    display:inline-flex;
-    align-items:center;
-    margin: 0 0.3em;
-}
-.delete-button{
-    background-color:palevioletred;
-    margin-left:2em;
-}
-
-/* adapted from https://mionskowski.pl/posts/positioning-a-context-menu-using-pure-css/ */
-.contextmenu {
-    --mouse-x: 0;
-    --mouse-y: 0;
-    display: none;
-    position: fixed;
-    margin: 0;
-    left: 0;
-    top: 0;
-    transform: translateX(min(var(--mouse-x), calc(100vw - 100%))) translateY(min(var(--mouse-y), calc(100vh - 100%)));
-
-    padding:5px 2em;
-    background-color:white;
-    border:thin black solid;
-    border-radius:5px;
-}
-.contextmenu-close{
-    position:absolute;
-    top:5px;
-    right:5px;
-}
-.contextmenu h4{
-    margin-top:1em;
-    margin-bottom:0.1em;
-}
-
+.annotation-ui-feature-collections{
+    overflow:auto;
+} */
 input.dsa-link{
     width:100%;
 }
@@ -153,9 +111,6 @@ input.dsa-link{
 }
 .folder:not(.expanded)>.folder-header>.fa-folder-open{
     display:none;
-}
-.open-in-viewer{
-    background-color:lightgoldenrodyellow;
 }
 
 .gui-component{

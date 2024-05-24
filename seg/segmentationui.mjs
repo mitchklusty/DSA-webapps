@@ -1,9 +1,18 @@
 
-
 import { RotationControlOverlay } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.6/src/js/rotationcontrol.mjs';
 import { AnnotationToolkit } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.6/src/js/annotationtoolkit.mjs';
-import { DSAUserInterface } from '/DSA-webapps/dsa/dsauserinterface.mjs';
-import { DSA_INSTANCE_URL } from '/DSA-webapps/config.mjs';
+import { DSAUserInterface } from '../dsa/dsauserinterface.mjs';
+
+/**
+ * @param {OpenSeadragon.Viewer} viewer The viewer to attach this UI to. If the viewer already has an annotation toolkit attached, use it, otherwise one will be created.
+ */
+export class SegmentationUI{
+    constructor(viewer){
+        this.viewer = viewer;
+        this.tk = viewer.annotationToolkit || new AnnotationToolkit(viewer);
+    }
+}
+
 
 // Global DSA linking variables
 const ANNOTATION_NAME = 'Gray White Segmentation';
@@ -27,7 +36,7 @@ const annotations = {
     'Leptomeninges': null,
     'Exclude': null,
 }
-console.log("here")
+
 // don't navigate away accidentally
 window.addEventListener('beforeunload',function(){
     return 'Are you sure you want to leave?';
@@ -49,57 +58,9 @@ let viewer = window.viewer = OpenSeadragon({
     sequenceMode:true,
 });
 
-
-var hash = window.location.hash.substr(1);
-
-var hashParams = hash.split('&').reduce(function (res, item) {
-    var parts = item.split('=');
-    res[parts[0]] = parts[1];
-    return res;
-}, {});
-
-if ("image" in hashParams){
-    localStorage.setItem('image', hashParams["image"]);
-}
-
-
-
-const queryString = window.location.search;
-const params = new URLSearchParams(queryString);
-const girderToken = params.get('girderToken');
-if (girderToken) {
-    params.delete('girderToken');
-    var newUrl = window.location.origin + window.location.pathname 
-    if (params.length > 0){
-        newUrl += '?' + params.toString();
-    }
-    if (DSA_INSTANCE_URL){
-        newUrl += "#dsa="+DSA_INSTANCE_URL;
-        var imageQueryParam = localStorage.getItem('image') || false;
-        if (imageQueryParam){
-            newUrl += `&image=${imageQueryParam}`;
-        }
-    }
-    console.log("NewURL: ", newUrl);
-    window.history.replaceState({}, document.title, newUrl);
-    window.location.href = newUrl;
-} 
-
-
 // DSA setup
 const dsaUI = new DSAUserInterface(viewer,{showHeader:'hash'});
-
-// window.dsa = dsaUI;
-if (girderToken && dsaUI !== null){
-    dsaUI.API.settoken(girderToken);
-}
-
-
-// console.log(dsaUI.API.LoginSystem);
 dsaUI.header.appendTo('.dsa-ui-container');
-
-// console.log("Connect to dsa")
-// dsaUI.connectToDSA(DSA_INSTANCE_URL);
 
 // Add rotation control
 const rotationControl = new RotationControlOverlay(viewer);
@@ -234,14 +195,8 @@ finishLeptomeninges.addEventListener('click',function(){
 // Set up the "Finish Exclude" button
 finishExclude.addEventListener('click',function(){
     this.classList.add('complete');
-    makeNonOverlapping('Exclude', true);
-    testComplete();
-});
-
-// Set up the "Submit" button
-submitButton.addEventListener('click', function(){
     // make Exclude a polygon type if the user hasn't drawn anything
-    if(annotations['Exclude'].area === 0){
+    if(annotations['Exclude']){
         const geometry = {
             type: 'Polygon',
             coordinates: [[[-1, -1], [-1, 0], [0, 0], [0, -1]]],
@@ -251,6 +206,13 @@ submitButton.addEventListener('click', function(){
         annotations['Exclude'] = newItem;
     }
     
+
+    makeNonOverlapping('Exclude', true);
+    testComplete();
+});
+
+// Set up the "Submit" button
+submitButton.addEventListener('click', function(){
     submitButton.classList.add('pending');
     submitButton.disabled = true;
     const itemID = viewer.world.getItemAt(0).source.item._id;
@@ -356,9 +318,6 @@ function makeNonOverlapping(name, overwriteOthers){
         let thisAnnotation = annotations[name];
         for(const key of keys){
             const other = annotations[key];
-            if(other.area === 0){
-                continue;
-            }
             const newOther = other.subtract(thisAnnotation, false).toCompoundPath();
             other.removeChildren();
             for(const child of newOther.children){

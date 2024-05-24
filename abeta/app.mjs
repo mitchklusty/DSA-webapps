@@ -6,7 +6,7 @@ import { BBox } from './bbox.mjs';
 import { DSAUserInterface } from '../dsa/dsauserinterface.mjs';
 
 
-const ANNOTATION_NAME = 'A-beta bounding boxes';
+const ANNOTATION_TYPE = 'A-beta bounding boxes';
 const ANNOTATION_DESCRIPTION = 'Created by the A-Beta Bounding Box App';
 
 // don't navigate away accidentally
@@ -24,10 +24,13 @@ let viewer = window.viewer = OpenSeadragon({
     crossOriginPolicy: 'Anonymous',
     ajaxWithCredentials: false,
     showNavigator:true,
+    // drawer:'canvas'
+    // sequenceMode:true,
+    // immediateRender: true,
 });
 
 // DSA setup
-let dsaUI = new DSAUserInterface(viewer);
+let dsaUI = new DSAUserInterface(viewer, {hash:"no-nav", openFolder:false});
 dsaUI.header.appendTo('.dsa-ui-container');
 
 // add rotation control
@@ -45,7 +48,7 @@ const bboxApp = new BBox({
         {name:'Dyshoric', color:'green', strokeWidth: 1},
         {name:'CAA', color:'magenta', strokeWidth: 1},
     ],
-    annotationName: ANNOTATION_NAME,
+    annotationType: ANNOTATION_TYPE,
     annotationDescription: ANNOTATION_DESCRIPTION
 });
 
@@ -54,29 +57,27 @@ viewer.addHandler('open', ()=>{
     // TODO: reset the bbox app?
     console.log('Do we need to do something to reset the app? Or is it automatic?');
     dsaUI.getAnnotations(viewer.world.getItemAt(0).source.item._id).then(d=>{
-        const existingAnnotations = d.filter(a => a.annotation?.description === ANNOTATION_DESCRIPTION);
-        if(existingAnnotations.length === 0){
-            // set up new segmentation
-            // setupFeatureCollection();
-        } else {
-            const promises = existingAnnotations.map(x => dsaUI.loadAnnotationAsGeoJSON(x._id));
-            Promise.all(promises).then(annotations => {
-                bboxApp.addFeatureCollections(annotations.flat());
-            });
-        }
+        const existingAnnotations = d.filter(a => a.annotation.attributes?.type === ANNOTATION_TYPE);
+        const promises = existingAnnotations.map(x => dsaUI.loadAnnotationAsGeoJSON(x._id));
+        Promise.all(promises).then(annotations => {
+            bboxApp.addFeatureCollections(annotations.flat());
+        });
     });
 })
 
 
-bboxApp.enableSaveButton(()=>{
+bboxApp.enableSaveButton((geoJSON, toDelete)=>{
     // console.log('GeoJSON:', geoJSON);
     const itemID = viewer.world.getItemAt(0).source.item._id;
-    const geoJSON = bboxApp.getDSACompatibleGeoJSON();
-    dsaUI.saveAnnotationInDSAFormat(itemID, geoJSON).then(d=>{
-        window.alert('Save was successful')
+    const idsToDelete = toDelete.map(item=>item.data.userdata?.dsa?.annotationId).filter(x=>x);
+    const promises = idsToDelete.map(id=>dsaUI.deleteAnnotation(id));
+    promises.push(dsaUI.saveAnnotationToolkitToDSA(itemID, viewer.annotationToolkit));
+    bboxApp.clearROIsToDelete();
+    return Promise.all(promises).then(()=>{
+        window.alert('Save was successful');
     }).catch(e=>{
         console.error(e);
-        window.alert('Error! There was a problem saving the annotation. Do you need to log in to the DSA? See console for details.');
+        window.alert('Error! There was a problem saving the annotation(s). Do you need to log in to the DSA? See console for details.');
     });
 })
 

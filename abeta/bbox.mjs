@@ -8,9 +8,10 @@ export class BBox extends OpenSeadragon.EventSource{
      * @param {String} options.container The selector to use for creating the UI
      * @param {Array} options.classes Array of objects with fields name (string), color (string or paper.Color), and strokeWidth (default: 1)
      * @param {Boolean} options.editROIs Whether ROI editing is allowed
-     * @param {String} options.annotationName The name of the overall annotation
+     * @param {String} options.annotationType The type of the overall annotation
      * @param {String} options.annotationDescription The description of the overall annotation
-     * @param {Boolean} options.animateNavigation Whether to animate transitions in panning between bounding boxes in review mode. Default = false. 
+     * @param {Boolean} options.animateNavigation Whether to animate transitions in panning between bounding boxes in review mode. Default = false.
+     * @param {Boolean} options.alignBBoxesToROI Whether to align bounding boxes to their ROI (true) or to the native WSI orientation (false); Default = false; 
      */
     constructor(options){
         super();
@@ -41,6 +42,7 @@ export class BBox extends OpenSeadragon.EventSource{
             this.tk.addAnnotationUI({autoOpen:false, addButtons:false});
         }
         
+
         // monkey patch in a convenience function
         this.tk.activateTool = function(name){
             const tool = this._annotationUI._toolbar.tools[name]
@@ -71,8 +73,12 @@ export class BBox extends OpenSeadragon.EventSource{
         this._createRoiEditor();
         this._createBboxEditor();
         this._createBboxReviewer();
+        this.setupContextMenu();
+        
 
         this._ROIMap = {};
+
+        this._ROIsToDelete = [];
     }
 
     get defaultOptions(){
@@ -81,9 +87,10 @@ export class BBox extends OpenSeadragon.EventSource{
             container: null,
             classes:[],
             editROIs:true,
-            annotationName: 'Bounding Box ROI',
+            annotationType: 'Bounding Box ROI',
             annotationDescription: 'Created by the Bounding Box tool',
             animationNavigation: false,
+            alignBBoxesToROI:false,
         }
     }
     
@@ -95,8 +102,15 @@ export class BBox extends OpenSeadragon.EventSource{
         this.components.saveButton.disabled = false;
         this.components.saveButton.addEventListener('click',()=>{
             const geoJSON = this.tk.toGeoJSON();
-            callback(geoJSON);
+            callback(geoJSON, this._ROIsToDelete);
         });
+    }
+
+    /**
+     * 
+     */
+    clearROIsToDelete(){
+        this._ROIsToDelete = [];
     }
 
     /**
@@ -117,10 +131,6 @@ export class BBox extends OpenSeadragon.EventSource{
                     group.data.userdata = Object.assign({}, group.data.userdata, groupUserdata);
                 }
                 this._initROI(group);
-                // const label = group.displayName;
-                // const option = this._createDropdownOption(label);
-                // this._ROIMap[label] = group;
-                // group.data.option = option;
 
                 this._numROIs = Math.max(this._numROIs, parseInt(group.displayName.split(/\s/)[1]));
             }
@@ -130,15 +140,7 @@ export class BBox extends OpenSeadragon.EventSource{
         this.tk.paperScope.project.getItems({match:item=>item.data.userdata?.role==='bounding-box'}).forEach(item=>item.selectedColor = item.strokeColor);
     }
 
-    getDSACompatibleGeoJSON(){
-        // const geoJSON = this.tk.toGeoJSON();
-        const featureCollections = this.tk.paperScope.project.getItems({match:layer=>layer.isGeoJSONFeatureCollection});
-        featureCollections.forEach(fc => {
-            const ROI = fc.children.filter(item=>item.data.userdata?.role === 'ROI')[0];
-            ROI.data.userdata = Object.assign({}, ROI.data.userdata, {featureCollectionUserdata:fc.data.userdata});
-        });
-
-
+    getGeoJSON(){
         return this.tk.toGeoJSON();
     }
 
@@ -157,6 +159,7 @@ export class BBox extends OpenSeadragon.EventSource{
         bboxTool.placeholder.paperItem.on('item-replaced',ev=>{
             console.log('placeholder replaced by', ev);
             ev.item.data.userdata = Object.assign({}, bboxTool.placeholder.paperItem.data.userdata); // save a copy, not a reference
+            ev.item.displayName = ev.item.data.userdata?.class;
         });
         bboxTool.onMouseUp = function(event){
             if(this.item){
@@ -170,6 +173,14 @@ export class BBox extends OpenSeadragon.EventSource{
             this.refreshItems();
         }
         bboxTool.activate = function(target){
+
+            target = target || this._currentTarget;
+            this._currentTarget = target;
+            if(!target){
+                this.deactivate();
+                return;
+            }
+
             _this.components.saveButton.disabled = true;
             _this.components.roiDropdown.disabled = true;
             this.targetGroup = _this._activeROI;
@@ -193,11 +204,9 @@ export class BBox extends OpenSeadragon.EventSource{
                 // iterate over currently selected items and set the style and class data
                 for(const item of this.items){
                     item.style = target.style;
-                    // item.style.fillColor = 'white';
-                    // item.style.fillOpacity = 0.001;
-                    // item.updateFillOpacity();
                     item.selectedColor = item.strokeColor;
                     item.data.userdata.class = target.class;
+                    item.displayName = target.class;
                 }
                 // if(this.items.length === 1 && activateRectTool){
                 //     tk.activateTool('rectangle')
@@ -302,11 +311,16 @@ export class BBox extends OpenSeadragon.EventSource{
         const removeROI = ()=>{
             // delete the currently active group
             const group = this._ROIMap[this.components.roiDropdown.value];
-            group?.remove();
-            group?.data.option.remove();
-            // set the dropdown to the default option
-            this.components.roiDropdown.value = '';
-            this.components.roiDropdown.dispatchEvent(new Event('change'));
+            if(group){
+                group.remove();
+                group.data.option.remove();
+                // set the dropdown to the default option
+                this.components.roiDropdown.value = '';
+                this.components.roiDropdown.dispatchEvent(new Event('change'));
+                
+                this._ROIsToDelete.push(group)
+            }
+           
         }
 
         
@@ -433,6 +447,12 @@ export class BBox extends OpenSeadragon.EventSource{
 
         content.addEventListener('activated', ()=> {
             this.tk.paperScope.project.getSelectedItems().forEach(item=>item.deselect());
+            if(this.options.alignBBoxesToROI){
+                const rectangle = this._activeROI.children.ROI;
+                this._alignToRectangle(rectangle);
+            } else {
+                this.viewer.viewport.rotateTo(0, null, true);
+            }
         });
 
         // button.addEventListener('click', ()=> this.components.roiDropdown.disabled = true );
@@ -484,8 +504,6 @@ export class BBox extends OpenSeadragon.EventSource{
         option.classList.add('requires-roi');
         content.classList.add('requires-roi');
         option.disabled = true;
-
-       
         
         
         // Left-most set of controls: those to review each item of a class in order
@@ -762,6 +780,111 @@ export class BBox extends OpenSeadragon.EventSource{
             onSelectionChange();
         });
 
+        this._activateBBoxReviewer = (item) => {
+            select.value = option.value;
+            select.dispatchEvent(new Event('change'));
+            if(item){
+                item.select();
+                editBBoxButton.dispatchEvent(new Event('click'));
+            }
+        }
+
+    }
+
+    setupContextMenu(){
+        // listen to right-click events in order to conditionally pop up a context menu
+        this.components._contextmenu = this._createComponent('div', document.querySelector('body'), null, 'contextmenu');
+        const menu = this.components._contextmenu;
+
+        const l1 = this._createComponent('h4',menu);
+        l1.innerText='Reclassify';
+
+        this.components._contextDropdown = this._createComponent('select', menu, null, ['contextmenu-dropdown']);
+        
+        const l2 = this._createComponent('h4',menu);
+        l2.innerText='Modify bounds';
+        this.components._contextEdit = this._createComponent('button', menu, null, ['contextmenu-edit-button']);
+        this.components._contextDelete = this._createComponent('button', menu, null, ['contextmenu-delete-button', 'delete-button']);
+
+        const closeButton = this._createComponent('button',menu,null,['contextmenu-close']);
+        closeButton.innerText = 'X';
+
+        for(const classDef of this.options.classes){
+            const option = this._createComponent('option', this.components._contextDropdown);
+            option.value = classDef.name;
+            option.innerText = classDef.name;
+        }
+        this.components._contextEdit.innerText = 'Edit';
+        this.components._contextDelete.innerText = 'Delete';
+
+        
+        const dropdown = this.components._contextDropdown;
+
+        let currentItem, isBBoxToolActive, currentBBoxToolClass;
+
+        const _handleContextMenu = (event)=>{
+            event.preventDefault();
+            if(!this._activeROI){
+                return;
+            }
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left; //x position within the element.
+            const y = event.clientY - rect.top;  //y position within the element.
+            
+            const imagePoint = new this.tk.paperScope.Point( this.viewer.viewport.viewerElementToImageCoordinates(new OpenSeadragon.Point(x, y)) );
+            const hitResult = this._activeROI.hitTest(imagePoint,{match:hitResult=>hitResult.item.data.userdata?.role === 'bounding-box', fill: true, stroke: true});
+            
+            if(hitResult){
+
+                isBBoxToolActive = this._bboxTool.isActive();
+                currentBBoxToolClass = this._bboxTool._currentTarget;
+                this.tk.activateTool('default');
+
+                currentItem = hitResult.item;
+                currentItem.select();
+
+                menu.style.setProperty('--mouse-x', event.clientX + 'px');
+                menu.style.setProperty('--mouse-y', event.clientY + 'px');
+                menu.style.display = 'block';
+
+                const currentClass = currentItem.data.userdata?.class;
+                dropdown.value = currentClass;
+            }
+        }
+        const _closeContextMenu = () => {
+            menu.style.display = 'none';
+            currentItem.deselect();
+            if(isBBoxToolActive){
+                this._bboxTool.activate(currentBBoxToolClass);
+            }
+        }
+
+        this.components._contextEdit.addEventListener('click', ()=>{
+            if(currentItem){
+                this._activateBBoxReviewer(currentItem);
+                _closeContextMenu();
+            }
+        });
+        this.components._contextDelete.addEventListener('click', ()=>{
+            if(currentItem){
+                currentItem.remove();
+                _closeContextMenu();
+            }
+        });
+        this.components._contextDropdown.addEventListener('change', ()=>{
+            if(currentItem){
+                const classDef = this._activeROI.data[this.components._contextDropdown.value];
+                
+                currentItem.select();
+                this._bboxTool.activate(classDef); // will set the class of each item and then activates the rect tool if needed
+                this._bboxTool.deactivate();
+                currentItem.deselect();
+                
+            }
+        });
+        closeButton.addEventListener('click', _closeContextMenu);
+        
+        this.tk.overlay.canvas().addEventListener('contextmenu', event => _handleContextMenu(event));
     }
     
     _createDropdownOption(label, activateOption){
@@ -777,7 +900,7 @@ export class BBox extends OpenSeadragon.EventSource{
         return option;
     }
 
-    _createROI(existingGroup){
+    _createROI(){
         // set style for the ROI
         const style = {
             strokeColor: 'black',
@@ -791,27 +914,20 @@ export class BBox extends OpenSeadragon.EventSource{
         const roiLabel = `ROI ${roiNumber}`;
         
         const group = tk._createFeatureCollectionGroup({label: roiLabel}); // automatically adds this to the tiled image 
-        // this._ROIMap[roiLabel] = group;
-        // group.data.userdata = {dsa:{name: this.options.annotationName, description: this.options.annotationDescription}};
-    
-        // const option = this._createDropdownOption(roiLabel, true);
-        // group.data.option = option;
-    
+
+        group.data.userdata = {
+            dsa: {
+                description: this.options.annotationDescription,
+                attributes:{
+                    type: this.options.annotationType
+                }
+            }
+        };
+        
         const placeholder = tk.makePlaceholderItem(style);
         placeholder.paperItem.displayName = 'ROI';
         placeholder.paperItem.data.userdata = {role: 'ROI'};
         group.addChild(placeholder.paperItem);
-    
-        // for(const classDef of this.options.classes){
-        //     const className = classDef.name;
-        //     const style = {
-        //         strokeColor: classDef.color,
-        //         rescale:{
-        //             strokeWidth: classDef.strokeWidth || 1
-        //         }
-        //     }
-        //     group.data[className] = {class: className, style: style}
-        // }
     
         this._initROI(group);
 
@@ -832,12 +948,6 @@ export class BBox extends OpenSeadragon.EventSource{
     _initROI(group){
 
         this._ROIMap[group.displayName] = group;
-        if(!group.data.userdata){
-            group.data.userdata = {}
-        }
-        if(!group.data.userdata.dsa){
-            group.data.userdata.dsa = {name: this.options.annotationName, description: this.options.annotationDescription};
-        }
     
         const option = this._createDropdownOption(group.displayName, true);
         group.data.option = option;
@@ -864,6 +974,7 @@ export class BBox extends OpenSeadragon.EventSource{
                 }
             });
             this._activeROI.opacity = 1;
+
             const rectangle = this._activeROI.children.ROI;
             this._alignToRectangle(rectangle);
 
@@ -891,7 +1002,10 @@ export class BBox extends OpenSeadragon.EventSource{
         try{
             const path = rect.children[0];
             const angle = path.segments[1].point.subtract(path.segments[0].point).angle;
-            this.viewer.viewport.rotateTo(-angle, null, true);
+            if(this.options.alignBBoxesToROI){
+                this.viewer.viewport.rotateTo(-angle, null, true);
+            }
+            
             const width = path.segments[0].point.subtract(path.segments[1].point).length;
             const height = path.segments[0].point.subtract(path.segments[3].point).length;
             const x = rect.bounds.center.x - width/2;

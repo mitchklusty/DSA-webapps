@@ -166,7 +166,7 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
             baseurl = 'https://'+baseurl;
         }
         this.dsaLinkInput.val(baseurl); //update the input to match what we have
-        if(baseurl !== $('#dsa-dialog').data('baseurl')){
+        if(baseurl !== this.dialog.data('baseurl')){
             this._setupDSA(baseurl);
             this.dialog.data('baseurl',baseurl);
             this.raiseEvent('set-dsa-instance',{url: baseurl});
@@ -191,6 +191,10 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
                 this.annotationEditorGUI.show();
                 this.annotationEditorGUI.attr('data-mode','picker');
                 this._setupItemNavigation(ts.name, element);
+                this.dialog.find('.open-in-viewer').removeClass('open-in-viewer');
+                if(element){
+                    $(element).addClass('open-in-viewer');
+                }
             });
         });
         
@@ -216,11 +220,42 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
     getAnnotations(itemID){
         return this.API.get('annotation',{params:{itemId:itemID}, noCache: true});
     }
+    
+    deleteAnnotation(id){
+        return this.API.delete(`annotation/${id}`);
+    }
 
     loadAnnotationAsGeoJSON(annotationId){
         return this.API.get(`annotation/${annotationId}`, {noCache: true}).then(d=>this.adapter.annotationToFeatureCollections(d));
     }
 
+    // Adds the newly saved ID back onto the item in the annotation toolkit so saving it again won't cause a duplicate copy
+    saveAnnotationToolkitToDSA(itemId, annotationToolkit, saveGeoJSON){
+        const geoJSON = annotationToolkit.toGeoJSON();
+        const fcGroups = annotationToolkit.getFeatureCollectionGroups();
+        return this.saveAnnotationInDSAFormat(itemId, geoJSON, saveGeoJSON).then(dsaResponseArray=>{
+            for(const i in dsaResponseArray){
+                if(!fcGroups[i].data.userdata){
+                    fcGroups[i].data.userdata = {}
+                }
+                
+                fcGroups[i].data.userdata.dsa = {
+                    attributes: dsaResponseArray[i].annotation.attributes,
+                    description: dsaResponseArray[i].annotation.description,
+                    name: dsaResponseArray[i].annotation.name,
+                    annotationId: dsaResponseArray[i]._id
+                }
+            }
+        })
+    }
+
+    /**
+     * Note: Does not add the newly saved ID back onto the item within the annotation toolkit.
+     * @param {String} itemID The ID of the item in the DSA
+     * @param {Object} geoJSON The GeoJSON object from an annotation toolkit
+     * @param {Boolean} saveGeoJSONFile Whether to save the annotation as a json file within the item
+     * @returns 
+     */
     saveAnnotationInDSAFormat(itemID, geoJSON, saveGeoJSONFile){
         if(Array.isArray(geoJSON)){
             const promises = geoJSON.map(item => this.saveAnnotationInDSAFormat(itemID, item, saveGeoJSONFile));
@@ -231,7 +266,8 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
         const data = {
             name: geoJSON.properties.userdata?.dsa?.name || geoJSON.label,
             description: geoJSON.properties.userdata?.dsa?.description || 'Created by DSAUserInterface.mjs adapter',
-            elements: this.adapter.featureCollectionToElements(geoJSON)
+            elements: this.adapter.featureCollectionToElements(geoJSON),
+            attributes: geoJSON.properties.userdata?.dsa?.attributes
         }
 
         let promise;
@@ -276,10 +312,6 @@ export class DSAUserInterface extends OpenSeadragon.EventSource{
         } else {
             return promise;
         }
-        
-        
-        
-       
     }
 
     // private
@@ -639,8 +671,10 @@ function headerHtml(){
     return `
     <div class="dsa-header dsaui">
         <input type="text" placeholder="Paste link to a DSA instance" class="dsa-link"><button class="dsa-go">Open DSA</button>
-        <span class="item-navigation"> 
-            Now annotating: <span class="current-item"></span>
+        <span class="item-navigation">
+            <span class="item-navigation-text">
+                Now annotating: <span class="current-item"></span>
+            </span> 
             <button class="item previous" disabled><</button>
             <button class='item next' disabled>></button>
         </span>
