@@ -24,6 +24,8 @@ const startExclude = document.querySelector('#start-exclude');
 const finishExclude = document.querySelector('#finish-exclude');
 const submitButton = document.querySelector('#submit');
 
+const FILL_OPACITY = 0.5;
+
 let featureCollection;
 const annotations = {
     'Gray Matter': null,
@@ -415,6 +417,7 @@ function setupFeatureCollection(existing){
         featureCollection.children.forEach(child => {
             if(validNames.includes(child.displayName)){
                 annotations[child.displayName] = child;
+                child.style.fillOpacity = FILL_OPACITY;
             } else {
                 child.remove();
             }
@@ -439,6 +442,14 @@ function setupFeatureCollection(existing){
         setupMultiPolygon('Other', featureCollection);
         setupMultiPolygon('Exclude', featureCollection);
     }
+
+    const ti = featureCollection.layer.tiledImage;
+
+    const from = new tk.paperScope.Point(0, 0);
+    const to = new tk.paperScope.Point(ti.source.width, ti.source.height);
+    const boundingRect = new tk.paperScope.Path.Rectangle(from, to);
+    boundingRect.isBoundingElement = true;
+    featureCollection.addChild(boundingRect);
     
     // reset the button states
     document.querySelectorAll('#annotation-controls button.complete').forEach(b=>b.classList.remove('complete'));
@@ -458,7 +469,7 @@ function setupMultiPolygon(name, parent){
         },
         strokeColor: color,
         fillColor: color,
-        fillOpacity: 0.1
+        fillOpacity: FILL_OPACITY
     };
 
     const mp = tk.makePlaceholderItem(style);
@@ -478,10 +489,10 @@ function setupMultiPolygon(name, parent){
 }
 
 function makeNonOverlapping(name, overwriteOthers){
-    if(overwriteOthers){
-        const keys = Object.keys(annotations).filter(key => key !== name);
-        let thisAnnotation = annotations[name];
-        if(thisAnnotation.area > 0){
+    const keys = Object.keys(annotations).filter(key => key !== name);
+    let thisAnnotation = annotations[name];
+    if(thisAnnotation.area > 0){
+        if(overwriteOthers){
             for(const key of keys){
                 const other = annotations[key];
                 if(other.area === 0){
@@ -494,11 +505,8 @@ function makeNonOverlapping(name, overwriteOthers){
                 }
                 newOther.remove();
             }
-        }
-    } else {
-        const keys = Object.keys(annotations).filter(key => key !== name);
-        let thisAnnotation = annotations[name];
-        if(thisAnnotation.area > 0){
+            
+        } else {
             for(const key of keys){
                 const other = annotations[key];
                 const newAnnotation = thisAnnotation.subtract(other, false).toCompoundPath();
@@ -509,8 +517,11 @@ function makeNonOverlapping(name, overwriteOthers){
                 }
                 newAnnotation.remove();
             }
+            
         }
     }
+
+    
 }
 
 function setupKeypressHandlers(){
