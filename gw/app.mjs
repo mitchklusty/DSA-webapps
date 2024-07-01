@@ -1,5 +1,3 @@
-
-
 import { RotationControlOverlay } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.6/src/js/rotationcontrol.mjs';
 import { AnnotationToolkit } from 'https://cdn.jsdelivr.net/gh/pearcetm/osd-paperjs-annotation@0.4.6/src/js/annotationtoolkit.mjs';
 import { DSAUserInterface } from '/DSA-webapps/dsa/dsauserinterface.mjs';
@@ -491,6 +489,7 @@ function setupMultiPolygon(name, parent){
 function makeNonOverlapping(name, overwriteOthers){
     const keys = Object.keys(annotations).filter(key => key !== name);
     let thisAnnotation = annotations[name];
+    window.hx = null;
     if(thisAnnotation.area > 0){
         if(overwriteOthers){
             for(const key of keys){
@@ -498,24 +497,136 @@ function makeNonOverlapping(name, overwriteOthers){
                 if(other.area === 0){
                     continue;
                 }
-                const newOther = other.subtract(thisAnnotation, false).toCompoundPath();
-                other.removeChildren();
-                for(const child of newOther.children){
-                    other.addChild(child.clone());
+                const intersection = thisAnnotation.intersect(other, false);
+                if(intersection.area < 0){
+                    intersection.reverse();
                 }
-                newOther.remove();
+                // Only do the boolean operations if the areas actually intersect
+                if(intersection.area > 0){
+                    let newAnnotation, diff, finished;
+                    // first try subtracting the intersection from the original
+                    // if the difference in the area vs the expected area is very small, it succeeded, so we can use the result
+                    newAnnotation = other.subtract(intersection, false).toCompoundPath();
+                    if(newAnnotation.area < 0){
+                        newAnnotation.reverse();
+                    }
+                    diff = newAnnotation.area - (other.area - intersection.area);
+                    if(Math.abs(diff) < 1){
+                        finished = true;
+                        console.log('Intersection worked');
+                    }
+
+                    // If we haven't finished, try subtracting the complete other item from the original
+                    if(!finished){
+                        newAnnotation.remove();
+                        newAnnotation = other.subtract(thisAnnotation, false).toCompoundPath();
+                        if(newAnnotation.area < 0){
+                            newAnnotation.reverse();
+                        }
+                        diff = newAnnotation.area - (other.area - intersection.area);
+                        if(Math.abs(diff) < 1){
+                            finished = true;
+                            console.log('Big subtract worked');
+                        }
+                    }
+
+                    // If we haven't finished, try expanding the intersection a tiny bit and retrying
+                    if(!finished){
+                        intersection.scale(new paper.Point(1.001, 1.001));
+                        newAnnotation.remove();
+                        newAnnotation = other.subtract(intersection, false).toCompoundPath();
+                        if(newAnnotation.area < 0){
+                            newAnnotation.reverse();
+                        }
+                        diff = newAnnotation.area - (other.area - intersection.area);
+                        if(Math.abs(diff) < 1){
+                            finished = true;
+                            console.log('Scaled intersection worked');
+                        }
+                    }
+
+                    if(finished){
+                        other.removeChildren();
+                        for(const child of newAnnotation.children){
+                            other.addChild(child.clone());
+                        }
+                    } else {
+                        window.alert('Subtracting areas failed, please edit slightly and retry');
+                        console.log('Nothing worked');
+                    }
+
+                    newAnnotation.remove();
+
+                }
+                intersection.remove();
+                
             }
             
         } else {
             for(const key of keys){
                 const other = annotations[key];
-                const newAnnotation = thisAnnotation.subtract(other, false).toCompoundPath();
-                thisAnnotation.removeChildren();
-                // thisAnnotation.addChildren(newAnnotation.children);
-                for(const child of newAnnotation.children){
-                    thisAnnotation.addChild(child.clone());
+
+                const intersection = thisAnnotation.intersect(other, false);
+                if(intersection.area < 0){
+                    intersection.reverse();
                 }
-                newAnnotation.remove();
+                // Only do the boolean operations if the areas actually intersect
+                if(intersection.area > 0){
+                    let newAnnotation, diff, finished;
+                    // first try subtracting the intersection from the original
+                    // if the difference in the area vs the expected area is very small, it succeeded, so we can use the result
+                    newAnnotation = thisAnnotation.subtract(intersection, false).toCompoundPath();
+                    if(newAnnotation.area < 0){
+                        newAnnotation.reverse();
+                    }
+                    diff = thisAnnotation.area - intersection.area - newAnnotation.area;
+                    if(Math.abs(diff) < 1){
+                        finished = true;
+                        console.log('Intersection worked');
+                    }
+
+                    // If we haven't finished, try subtracting the complete other item from the original
+                    if(!finished){
+                        newAnnotation.remove();
+                        newAnnotation = thisAnnotation.subtract(other, false).toCompoundPath();
+                        if(newAnnotation.area < 0){
+                            newAnnotation.reverse();
+                        }
+                        diff = thisAnnotation.area - intersection.area - newAnnotation.area;
+                        if(Math.abs(diff) < 1){
+                            finished = true;
+                            console.log('Big subtract worked');
+                        }
+                    }
+
+                    // If we haven't finished, try expanding the intersection a tiny bit and retrying
+                    if(!finished){
+                        intersection.scale(new paper.Point(1.001, 1.001));
+                        newAnnotation.remove();
+                        newAnnotation = thisAnnotation.subtract(intersection, false).toCompoundPath();
+                        if(newAnnotation.area < 0){
+                            newAnnotation.reverse();
+                        }
+                        diff = thisAnnotation.area - intersection.area - newAnnotation.area;
+                        if(Math.abs(diff) < 1){
+                            finished = true;
+                            console.log('Scaled intersection worked');
+                        }
+                    }
+
+                    if(finished){
+                        thisAnnotation.removeChildren();
+                        for(const child of newAnnotation.children){
+                            thisAnnotation.addChild(child.clone());
+                        }
+                    } else {
+                        window.alert('Subtracting areas failed, please edit slightly and retry');
+                        console.log('Nothing worked');
+                    }
+
+                    newAnnotation.remove();
+                }
+                intersection.remove();
             }
             
         }
