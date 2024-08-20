@@ -17,38 +17,12 @@ $config = include CONFIG_FILE;
     <script type="module" src="/DSA-webapps/gw/app.mjs"></script>
     <link rel="stylesheet" href="/DSA-webapps/dsa/dsa.css">
     <link rel="stylesheet" href="/DSA-webapps/gw/app.css">
+    <link rel="stylesheet" href="/DSA-webapps/dsa/dsauserinterface.css">
+    <link rel="stylesheet" href="/DSA-webapps/apps/segmentationui.css">
     
 </head>
 <body>
-    <div class="content">
-        <div id="header">
-            <div class="dsa-ui-container"></div>
-            <div id="button-set">
-                <span id="annotation-controls">
-                    <button id="start-gray">Gray matter</button>
-                    <button id="finish-gray" class="finish-button" disabled>Finshed</button>
-                    |
-                    <button id="start-white">White matter</button>
-                    <button id="finish-white" class="finish-button" disabled>Finshed</button>
-                    |
-                    <button id="start-leptomeninges">Leptomeninges</button>
-                    <button id="finish-leptomeninges" class="finish-button" disabled>Finshed</button>
-                    |
-                    <button id="start-superficial">Superficial cortex</button>
-                    <button id="finish-superficial" class="finish-button" disabled>Finshed</button>
-                    |
-                    <button id="start-other">Other</button>
-                    <button id="finish-other" class="finish-button" disabled>Finshed</button>
-                    |
-                    <button id="start-exclude">Exclude</button>
-                    <button id="finish-exclude" class="finish-button" disabled>Finshed</button>
-                    |
-                </span>
-                <button id="submit" class="finish-button">Submit</button>
-            </div>
-        </div>
-        <div id="viewer-container">
-            <div id='viewer' class="viewer"></div>
-        </div>
+    <div>
+        <div id="viewer"></div>
     </div>
 </body>
