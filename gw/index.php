@@ -18,9 +18,7 @@ $config = include CONFIG_FILE;
     <link rel="stylesheet" href="/DSA-webapps/dsa/dsa.css">
     <link rel="stylesheet" href="/DSA-webapps/gw/app.css">
     <link rel="stylesheet" href="/DSA-webapps/dsa/dsauserinterface.css">
-    <link rel="stylesheet" href="/DSA-webapps/apps/segmentationui.css">
-    
-</head>
+    <link rel="stylesheet" href="/DSA-webapps/apps/segmentationui.css"> 
 <body>
     <div>
         <div id="viewer"></div>
