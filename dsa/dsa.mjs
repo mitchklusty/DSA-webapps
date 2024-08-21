@@ -127,10 +127,18 @@ class LoginSystem{
             if(cookie){
                 dsa.settoken(cookie.split('=')[1]);
             }
-            if(window.localStorage.getItem('dsa-auth') !== null){
+
+            const currentUrl = window.location.href;
+            const queryString = currentUrl.split('#')[1];
+            // Create a URLSearchParams object from the query string
+            const params = new URLSearchParams(queryString);
+            const dsaValue = params.get('dsa') || DSA_INSTANCE_URL;
+
+
+            if ((window.localStorage.getItem('dsa-auth') !== null) || (window.localStorage.getItem('dsa-auth') == dsaValue)){
                 let json= JSON.parse(window.localStorage.getItem('dsa-auth'));
                 dsa.settoken(json.authToken && json.authToken.token);
-            } else if (!dsa.gettoken()) {
+            } else if (!dsa.gettoken() || (window.localStorage.getItem('dsa-auth') != dsaValue)) {
                 const response = await this.getOAuthRedirect();
                 if (response['Microsoft']){
                     window.location.href = response['Microsoft'];
@@ -158,6 +166,7 @@ class LoginSystem{
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
+                window.localStorage.setItem('dsa-url', dsaValue);
                 const data = await response.json();
                 return data; 
             } catch (error) {
