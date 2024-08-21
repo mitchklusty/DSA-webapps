@@ -148,7 +148,13 @@ class LoginSystem{
 
         this.getOAuthRedirect = async function () {
             try {
-                const response = await fetch(`${DSA_INSTANCE_URL}/api/v1/oauth/provider?redirect=https://dsahub.ai.uky.edu/annotations#dsa=${DSA_INSTANCE_URL}`);
+                const currentUrl = window.location.href;
+                const queryString = currentUrl.split('#')[1];
+                // Create a URLSearchParams object from the query string
+                const params = new URLSearchParams(queryString);
+                const dsaValue = params.get('dsa') || DSA_INSTANCE_URL;
+                console.log(dsaValue);
+                const response = await fetch(`${dsaValue}/api/v1/oauth/provider?redirect=https://dsahub.ai.uky.edu/annotations#${queryString}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
