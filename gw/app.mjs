@@ -32,17 +32,22 @@ if ("image" in hashParams){
 
 
 
-const queryString = window.location.search;
+const currentUrl = window.location.href;
+const queryString = currentUrl.split('#')[1];
+const questionQueryString = window.location.search;
 const params = new URLSearchParams(queryString);
-const girderToken = params.get('girderToken');
+const questionParams = new URLSearchParams(questionQueryString);
+const dsaValue = params.get('dsa') || window.localStorage.getItem('dsa-url');
+const girderToken = questionParams.get('girderToken');
+console.log("app queryString:", queryString);
 if (girderToken) {
-    params.delete('girderToken');
+    questionParams.delete('girderToken');
     var newUrl = window.location.origin + window.location.pathname 
-    if (params.length > 0){
-        newUrl += '?' + params.toString();
+    if (questionParams.length > 0){
+        newUrl += '?' + questionParams.toString();
     }
-    if (DSA_INSTANCE_URL){
-        newUrl += "#dsa="+DSA_INSTANCE_URL;
+    if (dsaValue){
+        newUrl += "#dsa="+dsaValue;
         var imageQueryParam = localStorage.getItem('image') || false;
         if (imageQueryParam){
             newUrl += `&image=${imageQueryParam}`;

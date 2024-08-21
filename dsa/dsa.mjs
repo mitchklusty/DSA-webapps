@@ -132,13 +132,16 @@ class LoginSystem{
             const queryString = currentUrl.split('#')[1];
             // Create a URLSearchParams object from the query string
             const params = new URLSearchParams(queryString);
+            console.log('==============');
+            console.log(params);
             const dsaValue = params.get('dsa') || DSA_INSTANCE_URL;
+            console.log(dsaValue);
 
 
-            if ((window.localStorage.getItem('dsa-auth') !== null) || (window.localStorage.getItem('dsa-auth') == dsaValue)){
+            if ((window.localStorage.getItem('dsa-auth') !== null) && (window.localStorage.getItem('dsa-url') == dsaValue)){
                 let json= JSON.parse(window.localStorage.getItem('dsa-auth'));
                 dsa.settoken(json.authToken && json.authToken.token);
-            } else if (!dsa.gettoken() || (window.localStorage.getItem('dsa-auth') != dsaValue)) {
+            } else if (!dsa.gettoken() || (window.localStorage.getItem('dsa-url') != dsaValue)) {
                 const response = await this.getOAuthRedirect();
                 if (response['Microsoft']){
                     window.location.href = response['Microsoft'];
@@ -161,11 +164,12 @@ class LoginSystem{
                 // Create a URLSearchParams object from the query string
                 const params = new URLSearchParams(queryString);
                 const dsaValue = params.get('dsa') || DSA_INSTANCE_URL;
-                console.log(dsaValue);
+                
                 const response = await fetch(`${dsaValue}/api/v1/oauth/provider?redirect=https://dsahub.ai.uky.edu/annotations#${queryString}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
+                window.localStorage.removeItem('dsa-auth');
                 window.localStorage.setItem('dsa-url', dsaValue);
                 const data = await response.json();
                 return data; 
