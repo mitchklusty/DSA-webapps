@@ -132,19 +132,17 @@ class LoginSystem{
             const queryString = currentUrl.split('#')[1];
             // Create a URLSearchParams object from the query string
             const params = new URLSearchParams(queryString);
-            console.log('==============');
-            console.log(params);
+
             const dsaValue = params.get('dsa') || DSA_INSTANCE_URL;
-            console.log(dsaValue);
-
-
+            
             if ((window.localStorage.getItem('dsa-auth') !== null) && (window.localStorage.getItem('dsa-url') == dsaValue)){
                 let json= JSON.parse(window.localStorage.getItem('dsa-auth'));
                 dsa.settoken(json.authToken && json.authToken.token);
             } else if (!dsa.gettoken() || (window.localStorage.getItem('dsa-url') != dsaValue)) {
                 const response = await this.getOAuthRedirect();
-                if (response['Microsoft']){
-                    window.location.href = response['Microsoft'];
+                console.log(response)
+                if (response['CILogon']){
+                    window.location.href = response['CILogon'];
                 }    
             }
             if(dsa.gettoken()){
